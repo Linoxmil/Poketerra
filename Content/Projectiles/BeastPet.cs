@@ -1,8 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
+using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.Localization;
+using Terraria.ModLoader;
 using Wildlore.Content.NPCs;
+using Wildlore.Core;
 using Wildlore.ID;
 
 namespace Wildlore.Content.Projectiles;

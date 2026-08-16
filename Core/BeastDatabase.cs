@@ -1,6 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Terraria;
+using Terraria.ID;
 using Terraria.Localization;
+using Terraria.ModLoader;
 using Wildlore.ID;
 
 namespace Wildlore.Core;
