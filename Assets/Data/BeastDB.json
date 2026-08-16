@@ -62,6 +62,201 @@
       "biome": 3,
       "spawnWeight": 0.3,
       "stats": { "hp": 70, "attack": 66, "defense": 74, "speed": 50 }
+    },
+
+    "7": {
+      "name": "Frostnib",
+      "elements": [5],
+      "catchRate": 205,
+      "baseExp": 90,
+      "growthRate": 2,
+      "biome": 2,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 50, "attack": 38, "defense": 56, "speed": 36 },
+      "evolution": { "id": 8, "atLevel": 24 }
+    },
+    "8": {
+      "name": "Rimehorn",
+      "elements": [5, 6],
+      "catchRate": 65,
+      "baseExp": 130,
+      "growthRate": 2,
+      "biome": 2,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 74, "attack": 60, "defense": 86, "speed": 40 }
+    },
+
+    "9": {
+      "name": "Gustling",
+      "elements": [4],
+      "catchRate": 212,
+      "baseExp": 90,
+      "growthRate": 0,
+      "biome": 0,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 34, "attack": 50, "defense": 32, "speed": 64 },
+      "evolution": { "id": 10, "atLevel": 21 }
+    },
+    "10": {
+      "name": "Skyrend",
+      "elements": [4],
+      "catchRate": 68,
+      "baseExp": 130,
+      "growthRate": 0,
+      "biome": 0,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 50, "attack": 78, "defense": 46, "speed": 86 }
+    },
+
+    "11": {
+      "name": "Pebblit",
+      "elements": [6],
+      "catchRate": 208,
+      "baseExp": 90,
+      "growthRate": 2,
+      "biome": 5,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 46, "attack": 40, "defense": 70, "speed": 24 },
+      "evolution": { "id": 12, "atLevel": 23 }
+    },
+    "12": {
+      "name": "Cragmaw",
+      "elements": [6],
+      "catchRate": 66,
+      "baseExp": 130,
+      "growthRate": 2,
+      "biome": 5,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 72, "attack": 64, "defense": 92, "speed": 32 }
+    },
+
+    "13": {
+      "name": "Duskmoth",
+      "elements": [7],
+      "catchRate": 206,
+      "baseExp": 90,
+      "growthRate": 1,
+      "biome": 6,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 38, "attack": 54, "defense": 34, "speed": 54 },
+      "evolution": { "id": 14, "atLevel": 26 }
+    },
+    "14": {
+      "name": "Nightmaw",
+      "elements": [7],
+      "catchRate": 62,
+      "baseExp": 130,
+      "growthRate": 1,
+      "biome": 6,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 54, "attack": 92, "defense": 44, "speed": 70 }
+    },
+
+    "15": {
+      "name": "Glimmerfin",
+      "elements": [2, 4],
+      "catchRate": 207,
+      "baseExp": 90,
+      "growthRate": 1,
+      "biome": 4,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 40, "attack": 46, "defense": 38, "speed": 56 },
+      "evolution": { "id": 16, "atLevel": 19 }
+    },
+    "16": {
+      "name": "Stormray",
+      "elements": [4, 2],
+      "catchRate": 70,
+      "baseExp": 130,
+      "growthRate": 1,
+      "biome": 4,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 58, "attack": 74, "defense": 56, "speed": 72 }
+    },
+
+    "17": {
+      "name": "Sunmite",
+      "elements": [0],
+      "catchRate": 214,
+      "baseExp": 90,
+      "growthRate": 1,
+      "biome": 7,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 44, "attack": 46, "defense": 46, "speed": 44 },
+      "evolution": { "id": 18, "atLevel": 25 }
+    },
+    "18": {
+      "name": "Prismhart",
+      "elements": [0, 4],
+      "catchRate": 64,
+      "baseExp": 130,
+      "growthRate": 1,
+      "biome": 7,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 66, "attack": 68, "defense": 66, "speed": 60 }
+    },
+
+    "19": {
+      "name": "Dunewisp",
+      "elements": [6],
+      "catchRate": 209,
+      "baseExp": 90,
+      "growthRate": 1,
+      "biome": 1,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 48, "attack": 44, "defense": 52, "speed": 36 },
+      "evolution": { "id": 20, "atLevel": 22 }
+    },
+    "20": {
+      "name": "Sandwraith",
+      "elements": [6, 7],
+      "catchRate": 72,
+      "baseExp": 130,
+      "growthRate": 1,
+      "biome": 1,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 68, "attack": 76, "defense": 70, "speed": 46 }
+    },
+
+    "21": {
+      "name": "Emberdrift",
+      "elements": [1, 6],
+      "catchRate": 130,
+      "baseExp": 108,
+      "growthRate": 1,
+      "biome": 5,
+      "spawnWeight": 0.5,
+      "stats": { "hp": 48, "attack": 64, "defense": 45, "speed": 58 }
+    },
+    "22": {
+      "name": "Snowlurk",
+      "elements": [5, 7],
+      "catchRate": 125,
+      "baseExp": 108,
+      "growthRate": 1,
+      "biome": 2,
+      "spawnWeight": 0.5,
+      "stats": { "hp": 56, "attack": 58, "defense": 60, "speed": 41 }
+    },
+    "23": {
+      "name": "Bloomstag",
+      "elements": [3],
+      "catchRate": 140,
+      "baseExp": 108,
+      "growthRate": 1,
+      "biome": 0,
+      "spawnWeight": 0.5,
+      "stats": { "hp": 58, "attack": 54, "defense": 52, "speed": 51 }
+    },
+    "24": {
+      "name": "Tidewarden",
+      "elements": [2, 6],
+      "catchRate": 120,
+      "baseExp": 108,
+      "growthRate": 2,
+      "biome": 4,
+      "spawnWeight": 0.5,
+      "stats": { "hp": 62, "attack": 48, "defense": 70, "speed": 35 }
     }
   }
 }

@@ -116,7 +116,12 @@ public abstract class SnareOrbProjectile : ModProjectile
 
         var baseRate = beast.Schema.CatchRate / 255f;
         var levelPenalty = 1f - beast.Data.Level / (float)(Wildlore.MaxLevel * 2);
-        var chance = Math.Clamp(baseRate * CatchModifier * levelPenalty, 0.02f, 0.95f);
+
+        // A creature at full strength throws the snare off; a worn-down one barely resists.
+        // This is the whole reason to send a companion in first.
+        var wear = 1f - 0.55f * beast.Data.HealthFraction;
+
+        var chance = Math.Clamp(baseRate * CatchModifier * levelPenalty * wear, 0.02f, 0.95f);
         return Main.rand.NextFloat() < chance;
     }
 
@@ -135,14 +140,50 @@ public abstract class SnareOrbProjectile : ModProjectile
         {
             var modPlayer = Main.player[Projectile.owner].GetModPlayer<WildlorePlayer>();
 
+            // Read the companion before the catch lands, so a first catch into an empty
+            // party does not credit the creature that was just caught.
+            var trainer = modPlayer.Active;
+
             if (modPlayer.AddToParty(_snared))
+            {
                 Main.NewText($"{_snared.DisplayName} joined your party!", 120, 220, 140);
+                if (trainer != null) AwardCatchExperience(trainer, _snared);
+            }
             else
+            {
                 Main.NewText($"Your party is full — {_snared.DisplayName} was released.", 220, 180, 120);
+            }
         }
 
         SoundEngine.PlaySound(SoundID.Item4, Projectile.position);
         Projectile.Kill();
+    }
+
+    /// <summary>
+    ///     A successful catch is what pays the companion, since it is not allowed to land a
+    ///     killing blow on a wild creature. Levelling comes from working the field, not from
+    ///     clearing it.
+    /// </summary>
+    private static void AwardCatchExperience(BeastData trainer, BeastData caught)
+    {
+        trainer.GainExperience(Combat.ExperienceFromBeast(caught), out var levels);
+        if (levels <= 0) return;
+
+        Main.NewText(
+            Language.GetTextValue("Mods.Wildlore.Combat.LevelUp", trainer.DisplayName, trainer.Level),
+            160, 230, 255);
+
+        var evolution = trainer.GetQueuedEvolution();
+        if (evolution == 0) return;
+
+        // BeastPet keys its cached sheet off the species ID, so the companion picks up its
+        // new body on the next frame without being told.
+        var before = trainer.DisplayName;
+        trainer.EvolveInto(evolution);
+
+        Main.NewText(
+            Language.GetTextValue("Mods.Wildlore.Combat.Evolved", before, trainer.DisplayName),
+            200, 230, 160);
     }
 
     /// <summary>

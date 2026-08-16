@@ -16,7 +16,7 @@ public class Wildlore : Mod
     ///     Every sheet in Assets/Beasts is authored to this, so the NPC and the companion
     ///     can share one number instead of each guessing at the texture height.
     /// </summary>
-    public const int SpriteFrames = 2;
+    public const int SpriteFrames = 4;
 
     public static Wildlore Instance => ModContent.GetInstance<Wildlore>();
 

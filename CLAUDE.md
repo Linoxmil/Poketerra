@@ -31,6 +31,8 @@ Core/
   BeastDatabase.cs                Species schema + JSON loading + localization lookups.
   BeastData.cs                    One individual creature. Save + network serialization.
   ExperienceTable.cs              Cached level→EXP curves.
+  ElementChart.cs                 Which element beats which. One side written, other derived.
+  Combat.cs                       Damage maths, EXP payouts, element lookup for vanilla NPCs.
   WildlorePlayer.cs               ModPlayer: party, active companion, discovery log.
 Content/
   NPCs/BeastNPC.cs                Single ModNPC class, instantiated once per species.
@@ -66,11 +68,12 @@ Rule 1 covers stats, so every number in `BeastDB.json` has to be derivable from 
 project's own budget rather than copied off a reference. New species follow these:
 
 - **Stat budget.** Base forms get 180 points across hp/attack/defense/speed; evolved
-  forms get 260. Spend them to fit the creature's lore — Emberkit is a glass cannon
-  (36/58/34/52), Tidepup a bulwark (52/40/58/30), Mossling an allrounder (48/44/50/38).
-- **`baseExp`** is the stat budget halved: 90 for a base form, 130 for an evolved one.
-- **`catchRate`** is roughly 205–215 for base forms and 65–75 for evolved ones, nudged
-  by how skittish the creature reads.
+  forms get 260; species with no evolution get 215. Spend them to fit the creature's
+  lore — Emberkit is a glass cannon (36/58/34/52), Tidepup a bulwark (52/40/58/30),
+  Mossling an allrounder (48/44/50/38).
+- **`baseExp`** is the stat budget halved: 90, 130, or 108.
+- **`catchRate`** is roughly 205–215 for base forms, 65–75 for evolved ones, and
+  120–140 for standalone species, nudged by how skittish the creature reads.
 - **`evolution.atLevel`** is chosen per line, not shared — 18 to 22 so far.
 - **EXP curves** (`ExperienceTable.Formula`) are a cubic plus a quadratic term. The
   cubic sets late-game cost, the quadratic stops the first few levels being instant.
@@ -91,6 +94,29 @@ number regardless of how well it plays.
   that NPC's own sheet and runs off the end of a two-frame one.
 - The shipped sheets are procedurally generated placeholders. Each is a drop-in replace.
 
+## How a fight works
+
+There is no battle screen. Wildlore fights happen in the world, on Terraria's own terms.
+
+- A companion auto-attacks hostile NPCs on sight. It attacks **wild creatures only while
+  its owner is holding a Snare Orb** — otherwise crossing a meadow would start six fights
+  nobody asked for.
+- It stops hitting a wild creature below `BeastPet.SpareThreshold` health, so it can never
+  finish off the rare you came for.
+- Each strike is a lunge: damage is set on the projectile for the lunge window only, so a
+  companion drifting into something never hurts it.
+- Wild creatures are passive until struck, then hit back for `BeastNPC.AggroMemory` ticks.
+- Damage is `attack * 2 - defence` with a floor, times the element multiplier. Defence
+  lengthens a fight rather than ending it, which matters when the point is to weaken
+  something enough to catch it.
+- Catch chance scales with how worn down the target is — that is the whole reason to send
+  a companion in first.
+- A fainted companion is recalled and heals out of combat. Death heals the whole party.
+
+Every consequence of a fight — damage, EXP, level-ups, evolution — resolves on the owning
+player's own machine, because that is the only place party data exists. See the multiplayer
+note under "Not yet built".
+
 ## Balancing knobs
 
 | What | Where |
@@ -101,17 +127,28 @@ number regardless of how well it plays.
 | Catch difficulty (per orb) | `CatchModifier` in the orb subclass |
 | Level cap | `Wildlore.MaxLevel` |
 | Rare variant odds | `Wildlore.RareChance` (1-in-N) |
+| Party size | `WildlorePlayer.PartySize` |
+| Companion aggro range | `BeastPet.AggroRange` |
+| Attack rate | `BeastPet.BeginLunge`, derived from the Speed stat |
+| When a companion spares a target | `BeastPet.SpareThreshold` |
+| Out-of-combat healing | `BeastPet.RegenInterval` / `OutOfCombatTicks` |
+| Damage formula | `Combat.Damage` |
+| EXP payouts | `Combat.ExperienceFrom` |
+| Element matchups | `ElementChart.StrongAgainst` |
 
 ## Not yet built
 
 - UI: party sidebar, discovery log screen, creature summary panel. Until those exist the
   only way to get a companion out is the `CycleCompanion` keybind (default `N`), which
   steps through the occupied party slots and then recalls.
-- Rare variant sprites (`<Identifier>_R.png`) and the draw path for them
-- Evolution trigger + animation (`BeastData.GetQueuedEvolution` exists but is never called)
-- EXP gain — nothing currently awards it
-- Multiplayer packet sync for party changes (save/load works, live sync does not)
-- Sounds
+- Rare variant sprites (`<Identifier>_R.png`) — rare creatures are currently only tinted,
+  scaled up slightly, and given a glow
+- Multiplayer packet sync for party changes. Save/load works, live sync does not, which is
+  why every fight resolves on the owner's own machine and why a companion's despawn is
+  decided there too. Other players see the companion move, but not its health.
+- Sounds of its own — combat currently borrows vanilla `SoundID` entries
+- Status effects, held items, or anything else that would make two creatures of the same
+  species play differently
 
 Pick one and finish it before starting the next.
 

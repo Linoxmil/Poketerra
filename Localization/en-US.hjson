@@ -25,12 +25,98 @@ Mods: {
 				DisplayName: Thornbeast
 				Lore: Grows a new ring of thorns each year. Older ones are unmistakable.
 			}
+			Frostnib: {
+				DisplayName: Frostnib
+				Lore: Packs snow around itself before sleeping. Wakes up when the drift melts.
+			}
+			Rimehorn: {
+				DisplayName: Rimehorn
+				Lore: Its horns are grown from the inside out and regrow in a season if broken.
+			}
+			Gustling: {
+				DisplayName: Gustling
+				Lore: Rides the updraft over open fields and lands only to eat.
+			}
+			Skyrend: {
+				DisplayName: Skyrend
+				Lore: Outruns weather. Farmers read the coming storm off which way it fled.
+			}
+			Pebblit: {
+				DisplayName: Pebblit
+				Lore: Sits perfectly still among loose stone. Miners have set lanterns on one by mistake.
+			}
+			Cragmaw: {
+				DisplayName: Cragmaw
+				Lore: Chews through rock for the salt in it. Old tunnels often turn out to be its work.
+			}
+			Duskmoth: {
+				DisplayName: Duskmoth
+				Lore: Its wings drink the light around them. You notice the dark before the moth.
+			}
+			Nightmaw: {
+				DisplayName: Nightmaw
+				Lore: Hunts by absence — birds stop first, then the insects, then you understand why.
+			}
+			Glimmerfin: {
+				DisplayName: Glimmerfin
+				Lore: Its scales scatter light into thin bands. Beautiful from a boat, useless as camouflage.
+			}
+			Stormray: {
+				DisplayName: Stormray
+				Lore: Breaks the surface ahead of bad weather and glides on the wind until the rain lands.
+			}
+			Sunmite: {
+				DisplayName: Sunmite
+				Lore: Too bright to look at directly. Gathers in numbers that make whole fields shimmer.
+			}
+			Prismhart: {
+				DisplayName: Prismhart
+				Lore: Light bends around its antlers and arrives somewhere else entirely.
+			}
+			Dunewisp: {
+				DisplayName: Dunewisp
+				Lore: Drifts with the sand and settles where the sand settles. Rarely in a hurry.
+			}
+			Sandwraith: {
+				DisplayName: Sandwraith
+				Lore: What a dune becomes after enough seasons of standing in one place, thinking.
+			}
+			Emberdrift: {
+				DisplayName: Emberdrift
+				Lore: Follows heat down through the rock. Where it stops, the stone stays warm for weeks.
+			}
+			Snowlurk: {
+				DisplayName: Snowlurk
+				Lore: Waits under the crust with only its breath showing. Patient past the point of comfort.
+			}
+			Bloomstag: {
+				DisplayName: Bloomstag
+				Lore: Its antlers flower once a year and are shed within the week. Finding a set is luck.
+			}
+			Tidewarden: {
+				DisplayName: Tidewarden
+				Lore: Holds a stretch of reef and lets nothing cross it twice. Slow, and never in doubt.
+			}
+		}
+
+		Combat: {
+			Devastating: Devastating!
+			Strong: Strong hit!
+			Resisted: Resisted
+			Feeble: Barely a scratch
+			LevelUp: '''{0} reached level {1}!'''
+			Evolved: '''{0} evolved into {1}!'''
+			Fainted: '''{0} is out of the fight.'''
 		}
 
 		Items: {
 			BasicSnareOrbItem: {
 				DisplayName: Snare Orb
-				Tooltip: Throw at a wild creature to catch it
+				Tooltip:
+					'''
+					Throw at a wild creature to catch it
+					Hold one to send your companion in — a worn-down creature is far easier to snare
+					'''
 			}
 		}
 

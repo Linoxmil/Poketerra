@@ -49,10 +49,56 @@ public class BeastData
     /// </summary>
     public ushort MaxHP => (ushort)(15 + Level * 2 + Schema.Stats.HP * Level / 40);
 
+    /// <summary>Health left. 0 means fainted — the creature cannot be sent out.</summary>
+    public ushort CurrentHP { get; private set; }
+
+    public bool IsFainted => CurrentHP == 0;
+
+    /// <summary>0–1. Drives the catch formula and the companion's health bar.</summary>
+    public float HealthFraction => MaxHP == 0 ? 0f : Math.Clamp(CurrentHP / (float)MaxHP, 0f, 1f);
+
+    /// <summary>
+    ///     The element a creature attacks with. Dual-element species defend with both but
+    ///     only ever strike with the first, so the matchup a player has to think about when
+    ///     choosing who to send out stays a single question.
+    /// </summary>
+    public ElementType PrimaryElement =>
+        Schema?.Elements is { Count: > 0 } elements ? elements[0] : ElementType.Neutral;
+
+    // Combat stats grow off the same base numbers as HP but on a flatter curve, so a level
+    // gap matters without a level-50 creature one-shotting everything a level-40 meets.
+    public ushort Attack => Derive(Schema.Stats.Attack);
+    public ushort Defense => Derive(Schema.Stats.Defense);
+    public ushort Speed => Derive(Schema.Stats.Speed);
+
+    private ushort Derive(byte baseStat) => (ushort)(5 + baseStat * Level / 25);
+
+    /// <summary>Refills health. Used on respawn and by out-of-combat regeneration.</summary>
+    public void Heal(int amount = int.MaxValue)
+    {
+        CurrentHP = (ushort)Math.Clamp(CurrentHP + (long)amount, 0, MaxHP);
+    }
+
+    /// <summary>
+    ///     Forces health to an exact value. Used where something outside owns the number —
+    ///     a wild creature's health lives on its NPC, because that is what weapons move.
+    /// </summary>
+    public void SetHealth(int value)
+    {
+        CurrentHP = (ushort)Math.Clamp(value, 0, MaxHP);
+    }
+
+    /// <summary>Applies damage. Returns true if this blow knocked the creature out.</summary>
+    public bool TakeDamage(int amount)
+    {
+        CurrentHP = (ushort)Math.Clamp(CurrentHP - (long)amount, 0, MaxHP);
+        return IsFainted;
+    }
+
     public static BeastData Create(Player player, ushort id, byte level = 1)
     {
         var schema = Wildlore.Database.Get(id);
-        return new BeastData
+        var data = new BeastData
         {
             ID = id,
             Level = level,
@@ -61,6 +107,9 @@ public class BeastData
             _caughtDate = DateTime.Now,
             IsRare = Main.rand.NextBool(Wildlore.RareChance)
         };
+
+        data.Heal();
+        return data;
     }
 
     public void GainExperience(int amount, out int levelsGained)
@@ -74,8 +123,13 @@ public class BeastData
         while (Level < Wildlore.MaxLevel &&
                TotalEXP >= ExperienceTable.TotalExpForLevel((byte)(Level + 1), Schema.GrowthRate))
         {
+            var before = MaxHP;
             Level++;
             levelsGained++;
+
+            // Hand over the extra capacity the level brought, so gaining a level in a fight
+            // reads as a small reward rather than as nothing at all.
+            Heal(MaxHP - before);
         }
     }
 
@@ -87,7 +141,14 @@ public class BeastData
 
     public void EvolveInto(ushort id)
     {
+        // Max HP jumps when the species changes, so carry the wound across as a fraction
+        // rather than as a raw number. Evolving mid-fight should not be a free full heal,
+        // and it should never leave the creature on more HP than it can hold.
+        var fraction = HealthFraction;
+
         ID = id;
+
+        CurrentHP = (ushort)Math.Max(1, (int)Math.Round(MaxHP * fraction));
     }
 
     public BeastData ShallowCopy()
@@ -104,6 +165,7 @@ public class BeastData
             ["id"] = ID,
             ["lvl"] = Level,
             ["exp"] = TotalEXP,
+            ["hp"] = CurrentHP,
             ["by"] = _caughtBy ?? string.Empty,
             ["version"] = Version
         };
@@ -127,6 +189,13 @@ public class BeastData
         data.TotalEXP = tag.TryGet<int>("exp", out var exp)
             ? exp
             : ExperienceTable.TotalExpForLevel(data.Level, data.Schema.GrowthRate);
+
+        // Saves written before health existed, and saves written against a different stat
+        // curve, both land here — clamping covers each of them.
+        data.CurrentHP = tag.TryGet<ushort>("hp", out var hp)
+            ? (ushort)Math.Min(hp, data.MaxHP)
+            : data.MaxHP;
+
         return data;
     }
 
@@ -140,8 +209,9 @@ public class BeastData
     public const int BitIsRare = 1 << 2;
     public const int BitNickname = 1 << 3;
     public const int BitEXP = 1 << 4;
+    public const int BitHP = 1 << 5;
 
-    public const int AllFields = BitID | BitLevel | BitIsRare | BitNickname | BitEXP;
+    public const int AllFields = BitID | BitLevel | BitIsRare | BitNickname | BitEXP | BitHP;
 
     public void NetWrite(BinaryWriter writer, int fields = AllFields)
     {
@@ -151,6 +221,7 @@ public class BeastData
         if ((fields & BitIsRare) != 0) writer.Write(IsRare);
         if ((fields & BitNickname) != 0) writer.Write(Nickname ?? string.Empty);
         if ((fields & BitEXP) != 0) writer.Write(TotalEXP);
+        if ((fields & BitHP) != 0) writer.Write7BitEncodedInt(CurrentHP);
     }
 
     public BeastData NetRead(BinaryReader reader)
@@ -161,6 +232,11 @@ public class BeastData
         if ((fields & BitIsRare) != 0) IsRare = reader.ReadBoolean();
         if ((fields & BitNickname) != 0) Nickname = reader.ReadString();
         if ((fields & BitEXP) != 0) TotalEXP = reader.ReadInt32();
+
+        // Read after level and ID, because both feed MaxHP and the clamp depends on it.
+        if ((fields & BitHP) != 0)
+            CurrentHP = (ushort)Math.Clamp(reader.Read7BitEncodedInt(), 0, MaxHP);
+
         return this;
     }
 

@@ -15,8 +15,20 @@ namespace Wildlore.Content.NPCs;
 [Autoload(false)]
 public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 {
+    /// <summary>Ticks a creature keeps fighting back after it was last struck.</summary>
+    private const int AggroMemory = 480;
+
+    /// <summary>Ticks between its own blows.</summary>
+    private const int StrikeInterval = 70;
+
+    private const float StrikeRange = 96f;
+
     private Asset<Texture2D> _texture;
     private int _hoverTimer;
+
+    private int _aggroProjectile = -1;
+    private int _aggroTimer;
+    private int _strikeCooldown;
 
     protected override bool CloneNewInstances => true;
 
@@ -44,29 +56,18 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, new NPCID.Sets.NPCBestiaryDrawModifiers { Hide = true });
     }
 
-    /// <summary>
-    ///     Walked frames are driven here rather than by an AnimationType: borrowing a vanilla
-    ///     NPC's animation would index frames against that NPC's sheet, which runs straight off
-    ///     the end of a two-frame one.
-    /// </summary>
-    public override void FindFrame(int frameHeight)
-    {
-        NPC.frame.Height = frameHeight;
-
-        NPC.frameCounter += Math.Abs(NPC.velocity.X) > 0.1f ? 0.15 : 0.05;
-        if (NPC.frameCounter >= Wildlore.SpriteFrames) NPC.frameCounter = 0;
-
-        NPC.frame.Y = (int)NPC.frameCounter * frameHeight;
-    }
-
     public override void SetDefaults()
     {
         NPC.width = 32;
         NPC.height = 32;
-        NPC.lifeMax = 250;
+
+        // A placeholder until OnSpawn rolls the individual and rescales it. Anything spawned
+        // without going through OnSpawn still gets a survivable creature rather than a 0 HP one.
+        NPC.lifeMax = 60;
         NPC.damage = 0;
         NPC.defense = 0;
         NPC.HitSound = SoundID.NPCHit1;
+        NPC.DeathSound = SoundID.NPCDeath1;
         NPC.value = 0f;
         NPC.knockBackResist = 0.75f;
         NPC.npcSlots = 0.2f;
@@ -75,19 +76,44 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         AIType = NPCID.Bunny;
     }
 
+    /// <summary>
+    ///     Walked frames are driven here rather than by an AnimationType: borrowing a vanilla
+    ///     NPC's animation would index frames against that NPC's sheet, which runs straight off
+    ///     the end of a four-frame one.
+    /// </summary>
+    public override void FindFrame(int frameHeight)
+    {
+        NPC.frame.Height = frameHeight;
+
+        NPC.frameCounter += Math.Abs(NPC.velocity.X) > 0.1f ? 0.18 : 0.07;
+        if (NPC.frameCounter >= Wildlore.SpriteFrames) NPC.frameCounter = 0;
+
+        NPC.frame.Y = (int)NPC.frameCounter * frameHeight;
+    }
+
     public override void OnSpawn(IEntitySource source)
     {
         if (Main.netMode == NetmodeID.MultiplayerClient) return;
 
         var nearest = Player.FindClosest(NPC.Center, NPC.width, NPC.height);
         Data = BeastData.Create(Main.player[nearest], ID, (byte)Main.rand.Next(2, 8));
+
+        ApplyStats();
         NPC.netUpdate = true;
+    }
+
+    private void ApplyStats()
+    {
+        if (Data == null) return;
+
+        NPC.lifeMax = Data.MaxHP;
+        NPC.life = Math.Max(1, Data.CurrentHP);
+        NPC.defense = Data.Defense / 3;
+        NPC.scale = Data.IsRare ? 1.15f : 1f;
     }
 
     public override void AI()
     {
-        if (NPC.life < NPC.lifeMax) NPC.life = NPC.lifeMax;
-
         if (BeingCaptured)
         {
             // Paced to run out at the same moment the orb's snare finishes closing, so the
@@ -103,7 +129,57 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
             return;
         }
 
+        // NPC.life is what weapons and the companion actually move, so it is the source of
+        // truth while the creature is wild. The catch roll reads the mirrored value.
+        if (Data != null && Data.CurrentHP != NPC.life) Data.SetHealth(NPC.life);
+
+        if (_aggroTimer > 0)
+        {
+            _aggroTimer--;
+            Retaliate();
+        }
+
         if (Data is { IsRare: true }) RareSparkle();
+    }
+
+    /// <summary>
+    ///     Wild creatures are passive until something hits them, then they hit back at whatever
+    ///     companion is standing in front of them. There is no separate battle screen — the
+    ///     fight happens where the creature lives.
+    /// </summary>
+    private void Retaliate()
+    {
+        if (_strikeCooldown > 0)
+        {
+            _strikeCooldown--;
+            return;
+        }
+
+        if (_aggroProjectile < 0 || _aggroProjectile >= Main.maxProjectiles) return;
+
+        var projectile = Main.projectile[_aggroProjectile];
+        if (!projectile.active || projectile.ModProjectile is not BeastPet pet) return;
+
+        // Party state lives only on its owner's machine, so that is where the blow lands.
+        if (projectile.owner != Main.myPlayer || pet.Companion == null) return;
+        if (!NPC.WithinRange(projectile.Center, StrikeRange)) return;
+
+        var attacker = Data?.PrimaryElement ?? ElementType.Neutral;
+        var multiplier = ElementChart.Multiplier(attacker, pet.Companion.Schema.Elements);
+        var damage = Combat.Damage(Data?.Attack ?? 5, pet.Companion.Defense, multiplier);
+
+        pet.TakeHit(damage, multiplier);
+
+        NPC.velocity += NPC.DirectionTo(projectile.Center) * 2.5f;
+        _strikeCooldown = StrikeInterval;
+    }
+
+    public override void OnHitByProjectile(Projectile projectile, NPC.HitInfo hit, int damageDone)
+    {
+        if (projectile.ModProjectile is not BeastPet) return;
+
+        _aggroProjectile = projectile.whoAmI;
+        _aggroTimer = AggroMemory;
     }
 
     private void RareSparkle()
@@ -125,10 +201,11 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         NPC.netUpdate = true;
     }
 
-    // Only Snare Orbs may interact — creatures are not combat targets.
+    // Only Snare Orbs and companions may interact — creatures are not targets for the
+    // player's own weapons.
     public override bool? CanBeHitByProjectile(Projectile projectile)
     {
-        return projectile.ModProjectile is SnareOrbProjectile;
+        return projectile.ModProjectile is SnareOrbProjectile or BeastPet;
     }
 
     public override bool CanBeHitByItem(Player player, Item item)
@@ -138,12 +215,14 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 
     public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position)
     {
-        return false;
+        // Hidden until something has actually hurt it. Once a fight starts the bar is the
+        // only way to judge whether the creature is worn down enough to throw an orb.
+        return NPC.life >= NPC.lifeMax ? false : null;
     }
 
     public override void SendExtraAI(BinaryWriter writer)
     {
-        Data.NetWrite(writer, BeastData.BitLevel | BeastData.BitIsRare);
+        Data.NetWrite(writer, BeastData.BitLevel | BeastData.BitIsRare | BeastData.BitHP);
         writer.Write(BeingCaptured);
     }
 

@@ -2,13 +2,16 @@
 
 A creature-collecting mod for Terraria, built on [tModLoader](https://github.com/tModLoader/tModLoader).
 
-Find wild creatures roaming the world, catch them with Snare Orbs, build a party of six,
-and level them up. All creatures, artwork and lore are original.
+Find wild creatures roaming the world, wear them down with the companion at your side,
+catch them with Snare Orbs, build a party of six, and level them up until they evolve.
+All creatures, artwork and lore are original.
 
 ## Status
 
-Early scaffold. The data model, spawning, catching and companion systems are in place.
-UI, evolution and EXP gain are not yet implemented — see `CLAUDE.md` for the open list.
+24 original creatures across eight biomes, nine of them two-stage evolution lines.
+Data model, spawning, catching, companions, real-time creature combat with an eight-way
+element chart, EXP and evolution are all in place. UI and multiplayer party sync are not —
+see `CLAUDE.md` for the open list.
 
 **The code has not been compiled yet.** Expect to fix API signature mismatches on the
 first in-game build.

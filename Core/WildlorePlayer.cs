@@ -20,6 +20,9 @@ public class WildlorePlayer : ModPlayer
 
     public static WildlorePlayer LocalPlayer => Main.LocalPlayer.GetModPlayer<WildlorePlayer>();
 
+    /// <summary>The creature currently out, or null.</summary>
+    public BeastData Active => ActiveSlot >= 0 && ActiveSlot < PartySize ? Party[ActiveSlot] : null;
+
     public int NextFreeSlot()
     {
         for (var i = 0; i < PartySize; i++)
@@ -33,6 +36,10 @@ public class WildlorePlayer : ModPlayer
     {
         var slot = NextFreeSlot();
         if (slot == -1) return false;
+        // A creature is normally caught at the end of a fight. The orb hands it back in one
+        // piece, so a hard-won catch is not immediately unusable.
+        data.Heal();
+
         Party[slot] = data;
         UpdateLore(data.ID, LoreEntryStatus.Caught);
         return true;
@@ -66,6 +73,17 @@ public class WildlorePlayer : ModPlayer
 
         Projectile.NewProjectile(Player.GetSource_Misc("WildloreSummon"), Player.Center,
             Vector2.Zero, ModContent.ProjectileType<BeastPet>(), 0, 0, Player.whoAmI, slot);
+    }
+
+    /// <summary>Sends every creature back out at full health.</summary>
+    public void HealParty()
+    {
+        foreach (var beast in Party) beast?.Heal();
+    }
+
+    public override void OnRespawn()
+    {
+        HealParty();
     }
 
     public override void ProcessTriggers(TriggersSet triggersSet)
