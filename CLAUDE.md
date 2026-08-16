@@ -124,12 +124,32 @@ Every consequence of a fight — damage, EXP, level-ups, evolution — resolves 
 player's own machine, because that is the only place party data exists. See the multiplayer
 note under "Not yet built".
 
+## How spawning is paced
+
+Creature density is one number — `GlobalSpawnScale` — meaning "what share of nearby spawns
+should be creatures", measured against vanilla's own pool entry of 1. `spawnWeight` only
+splits that share between the species of a biome, so a biome holding four species is not
+twice as busy as one holding two.
+
+Two things then scale it:
+
+- **World size.** `WorldPopulation` squares the ratio against a medium world and clamps to
+  0.5–1.5, so a small world runs at 15% creatures and a large one at 45%, with the nearby
+  cap moving 4 → 12 alongside it.
+- **Spawn rate.** Weighting the pool only decides what comes out of it. On a quiet daytime
+  surface Terraria hardly reaches into the pool at all, so weight alone leaves a meadow
+  empty; `SpawnRateBoost` raises how often it reaches. It lifts vanilla spawns a little
+  too — set it to 0 to leave Terraria's pacing untouched.
+
 ## Balancing knobs
 
 | What | Where |
 |---|---|
-| Spawn frequency (global) | `BeastSpawnSystem.GlobalSpawnScale` |
-| Spawn frequency (per species) | `spawnWeight` in the JSON |
+| Share of spawns that are creatures | `BeastSpawnSystem.GlobalSpawnScale` |
+| How often the pool is sampled | `BeastSpawnSystem.SpawnRateBoost` (0 = leave vanilla alone) |
+| Creatures alive near one player | `BeastSpawnSystem.NearbyCap` |
+| World-size scaling | `BeastSpawnSystem.WorldPopulation` |
+| Split within a biome | `spawnWeight` in the JSON |
 | Catch difficulty (per species) | `catchRate` in the JSON, 1–255, higher = easier |
 | Catch difficulty (per orb) | `CatchModifier` in the orb subclass |
 | Level cap | `Wildlore.MaxLevel` |
