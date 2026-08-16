@@ -117,7 +117,7 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         if (Data == null) return;
 
         NPC.lifeMax = Data.MaxHP;
-        NPC.life = Math.Max(1, Data.CurrentHP);
+        NPC.life = Math.Max(1, (int)Data.CurrentHP);
         NPC.defense = Data.Defense / 3;
         NPC.scale = Data.IsRare ? 1.15f : 1f;
     }
@@ -218,7 +218,7 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         return projectile.ModProjectile is SnareOrbProjectile or BeastPet;
     }
 
-    public override bool CanBeHitByItem(Player player, Item item)
+    public override bool? CanBeHitByItem(Player player, Item item)
     {
         return false;
     }

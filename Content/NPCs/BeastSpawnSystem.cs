@@ -16,8 +16,11 @@ namespace Wildlore.Content.NPCs;
 ///     Injects creatures into Terraria's spawn pool based on the player's current biome.
 ///     Vanilla builds a weighted pool each spawn attempt; adding entries here is the
 ///     supported way to make modded NPCs appear naturally.
+///     <para>
+///     A GlobalNPC despite the name: EditSpawnPool hangs off GlobalNPC, not ModSystem.
+///     </para>
 /// </summary>
-public class BeastSpawnSystem : ModSystem
+public class BeastSpawnSystem : GlobalNPC
 {
     /// <summary>Global multiplier applied to every creature's spawn weight. Tune this first when balancing.</summary>
     private const float GlobalSpawnScale = 0.08f;
