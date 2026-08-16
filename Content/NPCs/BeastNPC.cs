@@ -39,8 +39,25 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 
     public override void SetStaticDefaults()
     {
+        Main.npcFrameCount[Type] = Wildlore.SpriteFrames;
+
         // Hidden from the vanilla bestiary; the mod ships its own discovery log.
         NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, new NPCID.Sets.NPCBestiaryDrawModifiers { Hide = true });
+    }
+
+    /// <summary>
+    ///     Walked frames are driven here rather than by an AnimationType: borrowing a vanilla
+    ///     NPC's animation would index frames against that NPC's sheet, which runs straight off
+    ///     the end of a two-frame one.
+    /// </summary>
+    public override void FindFrame(int frameHeight)
+    {
+        NPC.frame.Height = frameHeight;
+
+        NPC.frameCounter += Math.Abs(NPC.velocity.X) > 0.1f ? 0.15 : 0.05;
+        if (NPC.frameCounter >= Wildlore.SpriteFrames) NPC.frameCounter = 0;
+
+        NPC.frame.Y = (int)NPC.frameCounter * frameHeight;
     }
 
     public override void SetDefaults()

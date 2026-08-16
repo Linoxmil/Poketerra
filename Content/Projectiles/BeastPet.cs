@@ -15,6 +15,13 @@ public class BeastPet : ModProjectile
 
     private int Slot => (int)Projectile.ai[0];
 
+    public override void SetStaticDefaults()
+    {
+        // Animate() and PreDraw both read the frame count back off this, so setting it is
+        // what makes a multi-frame species sheet draw one frame instead of the whole strip.
+        Main.projFrames[Type] = Wildlore.SpriteFrames;
+    }
+
     public override void SetDefaults()
     {
         Projectile.width = 32;

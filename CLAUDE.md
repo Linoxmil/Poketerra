@@ -60,12 +60,36 @@ Localization/en-US.hjson          Display names and lore text.
 No C# changes are needed. If a species seems to need one, that is a signal the schema
 should gain a field instead.
 
+## Where the numbers come from
+
+Rule 1 covers stats, so every number in `BeastDB.json` has to be derivable from the
+project's own budget rather than copied off a reference. New species follow these:
+
+- **Stat budget.** Base forms get 180 points across hp/attack/defense/speed; evolved
+  forms get 260. Spend them to fit the creature's lore — Emberkit is a glass cannon
+  (36/58/34/52), Tidepup a bulwark (52/40/58/30), Mossling an allrounder (48/44/50/38).
+- **`baseExp`** is the stat budget halved: 90 for a base form, 130 for an evolved one.
+- **`catchRate`** is roughly 205–215 for base forms and 65–75 for evolved ones, nudged
+  by how skittish the creature reads.
+- **`evolution.atLevel`** is chosen per line, not shared — 18 to 22 so far.
+- **EXP curves** (`ExperienceTable.Formula`) are a cubic plus a quadratic term. The
+  cubic sets late-game cost, the quadratic stops the first few levels being instant.
+- **`BeastData.MaxHP`** is a flat floor, plus a per-level term, plus a base-stat term.
+
+If a proposed number happens to match a creature from another game, it is the wrong
+number regardless of how well it plays.
+
 ## Sprites
 
 - 32×32 per frame, vertically stacked for animation frames, transparent background
 - Terraria's palette is muted and slightly desaturated — avoid pure saturated colours
 - Readable silhouette at 100% zoom matters more than internal detail
-- Set `Main.projFrames[type]` in `SetStaticDefaults` if the pet has more than one frame
+- Frame count is `Wildlore.SpriteFrames`, and every sheet is authored to it. `BeastNPC`
+  feeds it to `Main.npcFrameCount` and drives `FindFrame` itself; `BeastPet` feeds it to
+  `Main.projFrames`. Change that constant and every sheet has to change with it.
+- Never set `AnimationType` on `BeastNPC` — a vanilla animator indexes frames against
+  that NPC's own sheet and runs off the end of a two-frame one.
+- The shipped sheets are procedurally generated placeholders. Each is a drop-in replace.
 
 ## Balancing knobs
 

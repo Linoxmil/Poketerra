@@ -34,15 +34,24 @@ public static class ExperienceTable
         return level >= table.Length ? table[^1] : table[level];
     }
 
+    /// <summary>
+    ///     Cumulative EXP to reach <paramref name="level" />.
+    ///     Each curve is a cubic plus a quadratic term: the cubic sets how punishing the late
+    ///     levels are, the quadratic front-loads enough cost that level 2-5 are not instant.
+    ///     All three are strictly increasing across the whole 1..MaxLevel range.
+    /// </summary>
     private static int Formula(int level, GrowthGroup group)
     {
-        var n = level;
+        double n = level;
+        var cube = n * n * n;
+        var square = n * n;
+
         return group switch
         {
-            GrowthGroup.Fast => (int)(4 * Math.Pow(n, 3) / 5),
-            GrowthGroup.Medium => (int)Math.Pow(n, 3),
-            GrowthGroup.Slow => (int)(5 * Math.Pow(n, 3) / 4),
-            _ => (int)Math.Pow(n, 3)
+            GrowthGroup.Fast => (int)(0.6 * cube + 8 * square),
+            GrowthGroup.Medium => (int)(0.9 * cube + 12 * square),
+            GrowthGroup.Slow => (int)(1.4 * cube + 16 * square),
+            _ => (int)(0.9 * cube + 12 * square)
         };
     }
 }

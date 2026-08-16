@@ -11,6 +11,13 @@ public class Wildlore : Mod
     /// <summary>1-in-N chance of a creature spawning in its rare colour variant.</summary>
     public const int RareChance = 2048;
 
+    /// <summary>
+    ///     Animation frames in every creature sheet, stacked vertically.
+    ///     Every sheet in Assets/Beasts is authored to this, so the NPC and the companion
+    ///     can share one number instead of each guessing at the texture height.
+    /// </summary>
+    public const int SpriteFrames = 2;
+
     public static Wildlore Instance => ModContent.GetInstance<Wildlore>();
 
     public static BeastDatabase Database { get; private set; }

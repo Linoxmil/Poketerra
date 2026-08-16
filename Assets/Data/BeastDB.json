@@ -3,65 +3,65 @@
     "1": {
       "name": "Emberkit",
       "elements": [1],
-      "catchRate": 190,
-      "baseExp": 62,
-      "growthRate": 1,
+      "catchRate": 210,
+      "baseExp": 90,
+      "growthRate": 0,
       "biome": 0,
       "spawnWeight": 1.0,
-      "stats": { "hp": 39, "attack": 52, "defense": 43, "speed": 65 },
-      "evolution": { "id": 2, "atLevel": 16 }
+      "stats": { "hp": 36, "attack": 58, "defense": 34, "speed": 52 },
+      "evolution": { "id": 2, "atLevel": 20 }
     },
     "2": {
       "name": "Cinderfox",
       "elements": [1],
-      "catchRate": 45,
-      "baseExp": 142,
-      "growthRate": 1,
+      "catchRate": 70,
+      "baseExp": 130,
+      "growthRate": 0,
       "biome": 1,
       "spawnWeight": 0.3,
-      "stats": { "hp": 58, "attack": 64, "defense": 58, "speed": 80 }
+      "stats": { "hp": 52, "attack": 84, "defense": 48, "speed": 76 }
     },
     "3": {
       "name": "Tidepup",
       "elements": [2],
-      "catchRate": 190,
-      "baseExp": 63,
-      "growthRate": 1,
+      "catchRate": 205,
+      "baseExp": 90,
+      "growthRate": 2,
       "biome": 4,
       "spawnWeight": 1.0,
-      "stats": { "hp": 44, "attack": 48, "defense": 65, "speed": 43 },
-      "evolution": { "id": 4, "atLevel": 16 }
+      "stats": { "hp": 52, "attack": 40, "defense": 58, "speed": 30 },
+      "evolution": { "id": 4, "atLevel": 18 }
     },
     "4": {
       "name": "Brinehound",
       "elements": [2],
-      "catchRate": 45,
-      "baseExp": 142,
-      "growthRate": 1,
+      "catchRate": 65,
+      "baseExp": 130,
+      "growthRate": 2,
       "biome": 4,
       "spawnWeight": 0.3,
-      "stats": { "hp": 59, "attack": 63, "defense": 80, "speed": 58 }
+      "stats": { "hp": 76, "attack": 58, "defense": 84, "speed": 42 }
     },
     "5": {
       "name": "Mossling",
       "elements": [3],
-      "catchRate": 190,
-      "baseExp": 64,
+      "catchRate": 215,
+      "baseExp": 90,
       "growthRate": 1,
       "biome": 3,
       "spawnWeight": 1.0,
-      "stats": { "hp": 45, "attack": 49, "defense": 49, "speed": 45 },
-      "evolution": { "id": 6, "atLevel": 16 }
+      "stats": { "hp": 48, "attack": 44, "defense": 50, "speed": 38 },
+      "evolution": { "id": 6, "atLevel": 22 }
     },
     "6": {
       "name": "Thornbeast",
       "elements": [3, 7],
-      "catchRate": 45,
-      "baseExp": 142,
+      "catchRate": 75,
+      "baseExp": 130,
       "growthRate": 1,
       "biome": 3,
       "spawnWeight": 0.3,
-      "stats": { "hp": 60, "attack": 62, "defense": 63, "speed": 60 }
+      "stats": { "hp": 70, "attack": 66, "defense": 74, "speed": 50 }
     }
   }
 }

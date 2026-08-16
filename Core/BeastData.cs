@@ -12,7 +12,7 @@ public class BeastData
     private const ushort Version = 0;
 
     private ushort _id;
-    private string _originalTrainer;
+    private string _caughtBy;
     private DateTime? _caughtDate;
 
     public byte Level = 1;
@@ -40,7 +40,14 @@ public class BeastData
 
     public int TotalEXP { get; private set; }
 
-    public ushort MaxHP => (ushort)(Math.Floor(2 * Schema.Stats.HP * Level / 100f) + Level + 10);
+    /// <summary>
+    ///     Effective health at the current level.
+    ///     A flat floor keeps a level-1 creature from being one-shot, the linear term makes
+    ///     every level felt regardless of species, and the base-stat term is what separates a
+    ///     Brinehound from an Emberkit. Tuned so a capped creature lands in the low hundreds,
+    ///     which is the range a mid-game Terraria player is used to reading.
+    /// </summary>
+    public ushort MaxHP => (ushort)(15 + Level * 2 + Schema.Stats.HP * Level / 40);
 
     public static BeastData Create(Player player, ushort id, byte level = 1)
     {
@@ -50,7 +57,7 @@ public class BeastData
             ID = id,
             Level = level,
             TotalEXP = ExperienceTable.TotalExpForLevel(level, schema.GrowthRate),
-            _originalTrainer = player.name,
+            _caughtBy = player.name,
             _caughtDate = DateTime.Now,
             IsRare = Main.rand.NextBool(Wildlore.RareChance)
         };
@@ -97,7 +104,7 @@ public class BeastData
             ["id"] = ID,
             ["lvl"] = Level,
             ["exp"] = TotalEXP,
-            ["ot"] = _originalTrainer ?? string.Empty,
+            ["by"] = _caughtBy ?? string.Empty,
             ["version"] = Version
         };
         if (IsRare) tag["rare"] = true;
@@ -112,7 +119,7 @@ public class BeastData
         {
             ID = (ushort)tag.GetShort("id"),
             Level = tag.GetByte("lvl"),
-            _originalTrainer = tag.GetString("ot")
+            _caughtBy = tag.GetString("by")
         };
         if (tag.TryGet<bool>("rare", out var rare)) data.IsRare = rare;
         if (tag.TryGet<string>("nick", out var nick)) data.Nickname = nick;
