@@ -22,8 +22,16 @@ public class Wildlore : Mod
 
     public static BeastDatabase Database { get; private set; }
 
+    /// <summary>
+    ///     Sends out the next creature in the party, or recalls the current one.
+    ///     Until the party UI exists this is the only way to get a companion into the world.
+    /// </summary>
+    public static ModKeybind CycleCompanionKeybind { get; private set; }
+
     public override void Load()
     {
+        CycleCompanionKeybind = KeybindLoader.RegisterKeybind(this, "CycleCompanion", "N");
+
         // The species database must exist before any content is registered,
         // since the NPC classes are constructed from its entries.
         using var stream = GetFileStream("Assets/Data/BeastDB.json");
@@ -46,5 +54,6 @@ public class Wildlore : Mod
         BeastLoader.Unload();
         ExperienceTable.Unload();
         Database = null;
+        CycleCompanionKeybind = null;
     }
 }

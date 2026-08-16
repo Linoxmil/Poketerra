@@ -38,5 +38,9 @@ Mods: {
 			BasicSnareOrb.DisplayName: Snare Orb
 			BeastPet.DisplayName: Companion
 		}
+
+		Keybinds: {
+			CycleCompanion.DisplayName: Send Out / Recall Companion
+		}
 	}
 }

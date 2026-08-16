@@ -9,6 +9,13 @@ namespace Wildlore.Content.Projectiles;
 /// </summary>
 public abstract class SnareOrbProjectile : ModProjectile
 {
+    /// <summary>
+    ///     Ticks the snare takes to close once it has latched onto a creature.
+    ///     <see cref="BeastNPC" />'s shrink is paced to finish at the same moment, so the two
+    ///     halves of the effect have to be retuned together.
+    /// </summary>
+    private const int CinchTicks = 42;
+
     /// <summary>Multiplier on catch chance. 1.0 = baseline orb.</summary>
     protected virtual float CatchModifier => 1f;
 
@@ -16,9 +23,16 @@ public abstract class SnareOrbProjectile : ModProjectile
     protected abstract int OrbItemType { get; }
 
     private BeastNPC _target;
-    private int _shakeTimer;
-    private int _shakesRemaining;
-    private bool _resolved;
+
+    /// <summary>
+    ///     The snared creature's identity, copied at the moment of contact.
+    ///     <see cref="BeastNPC" /> starts shrinking straight away and is gone from the world
+    ///     well before the snare finishes closing, so its data cannot be read back later.
+    /// </summary>
+    private BeastData _snared;
+
+    private int _cinchTimer;
+    private bool _willEscape;
 
     public override void SetDefaults()
     {
@@ -40,19 +54,40 @@ public abstract class SnareOrbProjectile : ModProjectile
             return;
         }
 
-        // Attached: run the shake sequence, then resolve.
+        // Latched on: hold position and run the cinch to completion.
         Projectile.velocity = Vector2.Zero;
         Projectile.rotation = 0f;
         Projectile.tileCollide = false;
 
-        _shakeTimer++;
-        if (_shakeTimer % 40 != 0) return;
+        _cinchTimer++;
+        CinchEffect();
 
-        _shakesRemaining--;
-        SoundEngine.PlaySound(SoundID.Item1, Projectile.position);
-
-        if (_shakesRemaining > 0) return;
+        if (_cinchTimer < CinchTicks) return;
         Resolve();
+    }
+
+    /// <summary>
+    ///     A ring of light drawing inward onto the orb, tightening as the snare closes, with
+    ///     a hum that climbs in pitch alongside it. One continuous action the player can read
+    ///     the progress of, rather than a sequence of discrete beats.
+    /// </summary>
+    private void CinchEffect()
+    {
+        var progress = _cinchTimer / (float)CinchTicks;
+        var radius = MathHelper.Lerp(44f, 4f, progress);
+
+        for (var i = 0; i < 2; i++)
+        {
+            var offset = Main.rand.NextFloat(MathHelper.TwoPi).ToRotationVector2() * radius;
+            var dust = Dust.NewDustPerfect(Projectile.Center + offset, DustID.TreasureSparkle,
+                -offset.SafeNormalize(Vector2.Zero) * 1.6f, 120, default, 0.9f);
+            dust.noGravity = true;
+        }
+
+        Lighting.AddLight(Projectile.Center, 0.35f, 0.4f, 0.22f);
+
+        if (_cinchTimer % 18 != 0) return;
+        SoundEngine.PlaySound(SoundID.Item25 with { Pitch = -0.5f + progress }, Projectile.Center);
     }
 
     public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -60,13 +95,15 @@ public abstract class SnareOrbProjectile : ModProjectile
         if (_target != null || target.ModNPC is not BeastNPC beast || beast.BeingCaptured) return;
 
         _target = beast;
+        _snared = beast.Data?.ShallowCopy();
+
         beast.Capture();
         Projectile.Center = target.Center;
+        Projectile.netUpdate = true;
 
-        // Decide the outcome up front, then play the shakes as feedback for it.
-        var success = RollCatch(beast);
-        _shakesRemaining = success ? 3 : Main.rand.Next(1, 4);
-        _resolved = !success;
+        // The outcome is decided the moment the snare latches on. The cinch is feedback for
+        // a result that already exists, not a roll running in real time.
+        _willEscape = !RollCatch(beast);
     }
 
     /// <summary>
@@ -75,6 +112,8 @@ public abstract class SnareOrbProjectile : ModProjectile
     /// </summary>
     private bool RollCatch(BeastNPC beast)
     {
+        if (beast.Data == null) return false;
+
         var baseRate = beast.Schema.CatchRate / 255f;
         var levelPenalty = 1f - beast.Data.Level / (float)(Wildlore.MaxLevel * 2);
         var chance = Math.Clamp(baseRate * CatchModifier * levelPenalty, 0.02f, 0.95f);
@@ -83,35 +122,48 @@ public abstract class SnareOrbProjectile : ModProjectile
 
     private void Resolve()
     {
-        var owner = Main.player[Projectile.owner];
-
-        if (_resolved)
+        if (_willEscape)
         {
-            // Escaped: put the creature back and return the orb.
-            var type = BeastLoader.GetNPCType(_target.ID);
-            if (Main.netMode != NetmodeID.MultiplayerClient && type != 0)
-                NPC.NewNPC(Projectile.GetSource_FromThis(), (int)Projectile.Center.X,
-                    (int)Projectile.Center.Y, type);
-
+            ReleaseSnared();
             Item.NewItem(Projectile.GetSource_FromThis(), Projectile.Hitbox, OrbItemType);
+            SoundEngine.PlaySound(SoundID.Item16, Projectile.position);
             Projectile.Kill();
             return;
         }
 
-        // Caught.
-        if (Projectile.owner == Main.myPlayer)
+        if (Projectile.owner == Main.myPlayer && _snared != null)
         {
-            var modPlayer = owner.GetModPlayer<WildlorePlayer>();
-            var data = _target.Data.ShallowCopy();
+            var modPlayer = Main.player[Projectile.owner].GetModPlayer<WildlorePlayer>();
 
-            if (modPlayer.AddToParty(data))
-                Main.NewText($"{data.DisplayName} joined your party!", 120, 220, 140);
+            if (modPlayer.AddToParty(_snared))
+                Main.NewText($"{_snared.DisplayName} joined your party!", 120, 220, 140);
             else
-                Main.NewText($"Your party is full — {data.DisplayName} was released.", 220, 180, 120);
+                Main.NewText($"Your party is full — {_snared.DisplayName} was released.", 220, 180, 120);
         }
 
         SoundEngine.PlaySound(SoundID.Item4, Projectile.position);
         Projectile.Kill();
+    }
+
+    /// <summary>
+    ///     Puts an escaped creature back into the world as the same individual it was.
+    ///     Spawning a plain new NPC would re-roll its level and rare flag, so a rare that got
+    ///     away would come back as something else entirely.
+    /// </summary>
+    private void ReleaseSnared()
+    {
+        if (Main.netMode == NetmodeID.MultiplayerClient || _snared == null) return;
+
+        var type = BeastLoader.GetNPCType(_snared.ID);
+        if (type == 0) return;
+
+        var index = NPC.NewNPC(Projectile.GetSource_FromThis(), (int)Projectile.Center.X,
+            (int)Projectile.Center.Y, type);
+
+        if (index < 0 || index >= Main.maxNPCs) return;
+
+        if (Main.npc[index].ModNPC is BeastNPC restored) restored.Data = _snared;
+        Main.npc[index].netUpdate = true;
     }
 
     public override bool OnTileCollide(Vector2 oldVelocity)

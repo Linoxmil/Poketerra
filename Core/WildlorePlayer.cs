@@ -1,3 +1,4 @@
+using Terraria.GameInput;
 using Terraria.ModLoader.IO;
 using Wildlore.Content.Projectiles;
 using Wildlore.ID;
@@ -65,6 +66,30 @@ public class WildlorePlayer : ModPlayer
 
         Projectile.NewProjectile(Player.GetSource_Misc("WildloreSummon"), Player.Center,
             Vector2.Zero, ModContent.ProjectileType<BeastPet>(), 0, 0, Player.whoAmI, slot);
+    }
+
+    public override void ProcessTriggers(TriggersSet triggersSet)
+    {
+        if (Wildlore.CycleCompanionKeybind is { JustPressed: true }) CycleCompanion();
+    }
+
+    /// <summary>
+    ///     Steps to the next occupied party slot, then past the last one to nothing, then
+    ///     back to the first. One key covers both summoning and recalling.
+    /// </summary>
+    public void CycleCompanion()
+    {
+        for (var step = 1; step <= PartySize; step++)
+        {
+            var slot = ActiveSlot + step;
+            if (slot >= PartySize) break;
+            if (Party[slot] == null) continue;
+
+            SetActive(slot);
+            return;
+        }
+
+        SetActive(-1);
     }
 
     public override void SaveData(TagCompound tag)

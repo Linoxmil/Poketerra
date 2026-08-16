@@ -17,7 +17,6 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 {
     private Asset<Texture2D> _texture;
     private int _hoverTimer;
-    private int _captureTimer;
 
     protected override bool CloneNewInstances => true;
 
@@ -91,15 +90,16 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 
         if (BeingCaptured)
         {
-            NPC.scale *= 0.85f;
-            NPC.alpha = Math.Min(255, NPC.alpha + 25);
+            // Paced to run out at the same moment the orb's snare finishes closing, so the
+            // creature is not already gone while the ring is still contracting on it.
+            NPC.scale *= 0.91f;
+            NPC.alpha = Math.Min(255, NPC.alpha + 6);
             if (NPC.scale < 0.02f)
             {
                 NPC.active = false;
                 NPC.netUpdate = true;
             }
 
-            _captureTimer++;
             return;
         }
 

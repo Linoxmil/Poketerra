@@ -104,7 +104,9 @@ number regardless of how well it plays.
 
 ## Not yet built
 
-- UI: party sidebar, discovery log screen, creature summary panel
+- UI: party sidebar, discovery log screen, creature summary panel. Until those exist the
+  only way to get a companion out is the `CycleCompanion` keybind (default `N`), which
+  steps through the occupied party slots and then recalls.
 - Rare variant sprites (`<Identifier>_R.png`) and the draw path for them
 - Evolution trigger + animation (`BeastData.GetQueuedEvolution` exists but is never called)
 - EXP gain — nothing currently awards it
