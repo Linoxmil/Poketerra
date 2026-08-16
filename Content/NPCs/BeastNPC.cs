@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -33,12 +34,19 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 
     private const float StrikeRange = 96f;
 
+    /// <summary>How close the player has to be for the name and level to appear.</summary>
+    private const float LabelRange = 340f;
+
     private Asset<Texture2D> _texture;
     private int _hoverTimer;
 
     private int _aggroProjectile = -1;
     private int _aggroTimer;
     private int _strikeCooldown;
+
+    private int _behaviourTimer;
+    private int _hopCooldown;
+    private bool _moving;
 
     protected override bool CloneNewInstances => true;
 
@@ -82,8 +90,12 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
         NPC.knockBackResist = 0.75f;
         NPC.npcSlots = 0.2f;
         NPC.friendly = true;
-        NPC.aiStyle = NPCAIStyleID.Passive;
-        AIType = NPCID.Bunny;
+
+        // aiStyle 0 means no vanilla AI at all. Borrowing the bunny's left these creatures
+        // standing still, because that AI is written around conditions a Wildlore creature
+        // never meets. Everything below Wander() is ours, gravity included — Terraria still
+        // does the tile collision and fills in collideX/collideY.
+        NPC.aiStyle = 0;
     }
 
     /// <summary>
@@ -107,6 +119,8 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
 
         var nearest = Player.FindClosest(NPC.Center, NPC.width, NPC.height);
         Data = BeastData.Create(Main.player[nearest], ID, (byte)Main.rand.Next(2, 8));
+
+        NPC.direction = Main.rand.NextBool() ? -1 : 1;
 
         ApplyStats();
         NPC.netUpdate = true;
@@ -149,7 +163,144 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
             Retaliate();
         }
 
+        Wander();
+
         if (Data is { IsRare: true }) RareSparkle();
+    }
+
+    // -- Wandering -----------------------------------------------------------------
+
+    /// <summary>
+    ///     Idle life. A creature picks between standing still and moving off in some direction,
+    ///     and switches every few seconds, so a meadow reads as inhabited rather than staged.
+    ///     Once something has hurt it, it runs from the nearest player instead.
+    /// </summary>
+    private void Wander()
+    {
+        var frightened = _aggroTimer > 0 || NPC.life * 2 < NPC.lifeMax;
+
+        if (--_behaviourTimer <= 0) ChooseBehaviour(frightened);
+
+        if (frightened)
+        {
+            var player = Main.player[Player.FindClosest(NPC.Center, NPC.width, NPC.height)];
+            if (player.active && NPC.WithinRange(player.Center, 460f))
+                NPC.direction = NPC.Center.X < player.Center.X ? -1 : 1;
+        }
+
+        var speed = WanderSpeed() * (frightened ? 1.8f : 1f);
+
+        switch (Schema.Movement)
+        {
+            case MovementStyle.Hopper: Hop(speed); break;
+            case MovementStyle.Flyer: Drift(speed, 1.6f); break;
+            case MovementStyle.Drifter: Drift(speed * 0.6f, 0.8f); break;
+            case MovementStyle.Swimmer: Swim(speed); break;
+            default: Walk(speed); break;
+        }
+
+        NPC.spriteDirection = NPC.direction;
+    }
+
+    private void ChooseBehaviour(bool frightened)
+    {
+        if (frightened)
+        {
+            _moving = true;
+            _behaviourTimer = 60;
+            return;
+        }
+
+        _moving = Main.rand.NextBool();
+        _behaviourTimer = _moving ? Main.rand.Next(90, 240) : Main.rand.Next(45, 150);
+
+        if (_moving) NPC.direction = Main.rand.NextBool() ? -1 : 1;
+    }
+
+    /// <summary>Movement speed off the Speed stat, so a fast species also looks fast idling.</summary>
+    private float WanderSpeed()
+    {
+        var stat = Data?.Speed ?? 10;
+
+        return 0.8f + Math.Clamp(stat / 30f, 0f, 2.4f);
+    }
+
+    private void ApplyGravity(float strength = 0.3f)
+    {
+        NPC.noGravity = false;
+        NPC.velocity.Y += strength;
+        if (NPC.velocity.Y > 10f) NPC.velocity.Y = 10f;
+    }
+
+    private bool Grounded => NPC.velocity.Y == 0f;
+
+    private void Walk(float speed)
+    {
+        ApplyGravity();
+
+        NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, _moving ? speed * NPC.direction : 0f, 0.07f);
+
+        if (!NPC.collideX) return;
+
+        // A wall is either something to step over or something to turn away from.
+        NPC.direction *= -1;
+        if (Grounded) NPC.velocity.Y = -4.6f;
+    }
+
+    private void Hop(float speed)
+    {
+        ApplyGravity();
+
+        if (_hopCooldown > 0) _hopCooldown--;
+
+        if (Grounded)
+        {
+            NPC.velocity.X *= 0.8f;
+
+            if (_moving && _hopCooldown == 0)
+            {
+                NPC.velocity = new Vector2(NPC.direction * speed * 1.5f, -5.2f);
+                _hopCooldown = Main.rand.Next(25, 55);
+            }
+        }
+
+        if (NPC.collideX) NPC.direction *= -1;
+    }
+
+    private void Drift(float speed, float bob)
+    {
+        NPC.noGravity = true;
+
+        // Offset by whoAmI so a group of them never bobs in lockstep.
+        var sway = (float)Math.Sin(Main.GameUpdateCount * 0.03f + NPC.whoAmI) * bob;
+
+        NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, _moving ? speed * NPC.direction : 0f, 0.04f);
+        NPC.velocity.Y = MathHelper.Lerp(NPC.velocity.Y, sway, 0.05f);
+
+        if (NPC.collideX) NPC.direction *= -1;
+        if (NPC.collideY) NPC.velocity.Y *= -0.5f;
+    }
+
+    private void Swim(float speed)
+    {
+        var submerged = Collision.WetCollision(NPC.position, NPC.width, NPC.height);
+
+        if (!submerged)
+        {
+            // Beached. Flop until gravity puts it back where it belongs.
+            ApplyGravity(0.35f);
+            NPC.velocity.X *= 0.94f;
+            return;
+        }
+
+        NPC.noGravity = true;
+
+        var sway = (float)Math.Sin(Main.GameUpdateCount * 0.02f + NPC.whoAmI) * 1.2f;
+
+        NPC.velocity.X = MathHelper.Lerp(NPC.velocity.X, _moving ? speed * NPC.direction : 0f, 0.05f);
+        NPC.velocity.Y = MathHelper.Lerp(NPC.velocity.Y, sway, 0.05f);
+
+        if (NPC.collideX) NPC.direction *= -1;
     }
 
     /// <summary>
@@ -267,5 +418,26 @@ public class BeastNPC(ushort id, BeastDatabase.BeastSchema schema) : ModNPC
             NPC.rotation, origin, NPC.scale, effects, 0f);
 
         return false;
+    }
+
+    /// <summary>
+    ///     Name and level float over a creature the player is standing near. Without this the
+    ///     whole levelling system is invisible until something is already caught.
+    /// </summary>
+    public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+    {
+        if (Data == null || NPC.IsABestiaryIconDummy || BeingCaptured) return;
+
+        var local = Main.LocalPlayer;
+        if (!local.active || !NPC.WithinRange(local.Center, LabelRange)) return;
+
+        var label = $"{DisplayName.Value}  Lv.{Data.Level}";
+        const float scale = 0.75f;
+
+        var width = FontAssets.MouseText.Value.MeasureString(label).X * scale;
+        var position = NPC.Top - screenPos + new Vector2(-width / 2f, -24f);
+        var colour = Data.IsRare ? new Color(255, 226, 140) : Color.White;
+
+        spriteBatch.DrawBorderString(label, position, colour, scale);
     }
 }

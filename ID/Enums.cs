@@ -42,6 +42,25 @@ public enum SpawnBiome : byte
     Hallow
 }
 
+/// <summary>How a species gets around. Picks which wander behaviour BeastNPC runs.</summary>
+public enum MovementStyle : byte
+{
+    /// <summary>Walks the ground, turns at walls, hops over one-block ledges.</summary>
+    Walker,
+
+    /// <summary>Springs in arcs with a pause between each landing.</summary>
+    Hopper,
+
+    /// <summary>Free flight, ignores gravity, ranges widest.</summary>
+    Flyer,
+
+    /// <summary>Hangs in the air and drifts. Slower and eerier than a flyer.</summary>
+    Drifter,
+
+    /// <summary>Swims while submerged, flops helplessly out of water.</summary>
+    Swimmer
+}
+
 /// <summary>Whether the player has merely encountered a species or actually caught one.</summary>
 public enum LoreEntryStatus : byte
 {

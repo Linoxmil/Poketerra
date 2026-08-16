@@ -2,6 +2,7 @@
   "beasts": {
     "1": {
       "name": "Emberkit",
+      "movement": 0,
       "elements": [1],
       "catchRate": 210,
       "baseExp": 90,
@@ -13,6 +14,7 @@
     },
     "2": {
       "name": "Cinderfox",
+      "movement": 0,
       "elements": [1],
       "catchRate": 70,
       "baseExp": 130,
@@ -23,6 +25,7 @@
     },
     "3": {
       "name": "Tidepup",
+      "movement": 1,
       "elements": [2],
       "catchRate": 205,
       "baseExp": 90,
@@ -34,6 +37,7 @@
     },
     "4": {
       "name": "Brinehound",
+      "movement": 0,
       "elements": [2],
       "catchRate": 65,
       "baseExp": 130,
@@ -44,6 +48,7 @@
     },
     "5": {
       "name": "Mossling",
+      "movement": 1,
       "elements": [3],
       "catchRate": 215,
       "baseExp": 90,
@@ -55,6 +60,7 @@
     },
     "6": {
       "name": "Thornbeast",
+      "movement": 0,
       "elements": [3, 7],
       "catchRate": 75,
       "baseExp": 130,
@@ -66,6 +72,7 @@
 
     "7": {
       "name": "Frostnib",
+      "movement": 1,
       "elements": [5],
       "catchRate": 205,
       "baseExp": 90,
@@ -77,6 +84,7 @@
     },
     "8": {
       "name": "Rimehorn",
+      "movement": 0,
       "elements": [5, 6],
       "catchRate": 65,
       "baseExp": 130,
@@ -88,6 +96,7 @@
 
     "9": {
       "name": "Gustling",
+      "movement": 2,
       "elements": [4],
       "catchRate": 212,
       "baseExp": 90,
@@ -99,6 +108,7 @@
     },
     "10": {
       "name": "Skyrend",
+      "movement": 2,
       "elements": [4],
       "catchRate": 68,
       "baseExp": 130,
@@ -110,6 +120,7 @@
 
     "11": {
       "name": "Pebblit",
+      "movement": 0,
       "elements": [6],
       "catchRate": 208,
       "baseExp": 90,
@@ -121,6 +132,7 @@
     },
     "12": {
       "name": "Cragmaw",
+      "movement": 0,
       "elements": [6],
       "catchRate": 66,
       "baseExp": 130,
@@ -132,6 +144,7 @@
 
     "13": {
       "name": "Duskmoth",
+      "movement": 2,
       "elements": [7],
       "catchRate": 206,
       "baseExp": 90,
@@ -143,6 +156,7 @@
     },
     "14": {
       "name": "Nightmaw",
+      "movement": 3,
       "elements": [7],
       "catchRate": 62,
       "baseExp": 130,
@@ -154,6 +168,7 @@
 
     "15": {
       "name": "Glimmerfin",
+      "movement": 4,
       "elements": [2, 4],
       "catchRate": 207,
       "baseExp": 90,
@@ -165,6 +180,7 @@
     },
     "16": {
       "name": "Stormray",
+      "movement": 4,
       "elements": [4, 2],
       "catchRate": 70,
       "baseExp": 130,
@@ -176,6 +192,7 @@
 
     "17": {
       "name": "Sunmite",
+      "movement": 2,
       "elements": [0],
       "catchRate": 214,
       "baseExp": 90,
@@ -187,6 +204,7 @@
     },
     "18": {
       "name": "Prismhart",
+      "movement": 0,
       "elements": [0, 4],
       "catchRate": 64,
       "baseExp": 130,
@@ -198,6 +216,7 @@
 
     "19": {
       "name": "Dunewisp",
+      "movement": 3,
       "elements": [6],
       "catchRate": 209,
       "baseExp": 90,
@@ -209,6 +228,7 @@
     },
     "20": {
       "name": "Sandwraith",
+      "movement": 3,
       "elements": [6, 7],
       "catchRate": 72,
       "baseExp": 130,
@@ -220,6 +240,7 @@
 
     "21": {
       "name": "Emberdrift",
+      "movement": 3,
       "elements": [1, 6],
       "catchRate": 130,
       "baseExp": 108,
@@ -230,6 +251,7 @@
     },
     "22": {
       "name": "Snowlurk",
+      "movement": 0,
       "elements": [5, 7],
       "catchRate": 125,
       "baseExp": 108,
@@ -240,6 +262,7 @@
     },
     "23": {
       "name": "Bloomstag",
+      "movement": 0,
       "elements": [3],
       "catchRate": 140,
       "baseExp": 108,
@@ -250,6 +273,7 @@
     },
     "24": {
       "name": "Tidewarden",
+      "movement": 0,
       "elements": [2, 6],
       "catchRate": 120,
       "baseExp": 108,

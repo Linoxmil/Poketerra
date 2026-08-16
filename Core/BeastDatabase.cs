@@ -91,6 +91,9 @@ public class BeastDatabase
         [JsonProperty("spawnWeight")]
         public float SpawnWeight { get; private set; } = 1f;
 
+        [JsonProperty("movement")]
+        public MovementStyle Movement { get; private set; } = MovementStyle.Walker;
+
         [JsonProperty("stats")]
         public StatsSchema Stats { get; private set; } = new();
 

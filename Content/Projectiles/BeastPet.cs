@@ -425,8 +425,12 @@ public class BeastPet : ModProjectile
 
     public override void PostDraw(Color lightColor)
     {
+        if (_data == null) return;
+
+        DrawLabel();
+
         // A health bar only while it matters. An untouched companion carries no clutter.
-        if (_data == null || _data.HealthFraction >= 1f) return;
+        if (_data.HealthFraction >= 1f) return;
 
         var pixel = TextureAssets.MagicPixel.Value;
         var source = new Rectangle(0, 0, 1, 1);
@@ -439,5 +443,21 @@ public class BeastPet : ModProjectile
 
         Main.EntitySpriteDraw(pixel, origin + new Vector2(1f, 1f), source, fill, 0f,
             Vector2.Zero, new Vector2(28f * _data.HealthFraction, 3f), SpriteEffects.None);
+    }
+
+    /// <summary>
+    ///     Name and level over the companion. Between this and the same label on wild
+    ///     creatures, the player can read a matchup before committing to a fight.
+    /// </summary>
+    private void DrawLabel()
+    {
+        var label = $"{_data.DisplayName}  Lv.{_data.Level}";
+        const float scale = 0.75f;
+
+        var width = FontAssets.MouseText.Value.MeasureString(label).X * scale;
+        var position = Projectile.Top - Main.screenPosition + new Vector2(-width / 2f, -40f);
+        var colour = _data.IsRare ? new Color(255, 226, 140) : Color.White;
+
+        Main.spriteBatch.DrawBorderString(label, position, colour, scale);
     }
 }

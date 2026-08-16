@@ -43,7 +43,8 @@ Content/
   Items/BasicSnareOrbItem.cs      Throwable orb item + recipes.
 ID/
   BeastID.cs                      Species ID constants. Append only.
-  Enums.cs                        ElementType, GrowthGroup, SpawnBiome, LoreEntryStatus.
+  Enums.cs                        ElementType, GrowthGroup, SpawnBiome, MovementStyle,
+                                  LoreEntryStatus.
 Assets/
   Data/BeastDB.json               The species database. Single source of truth.
   Beasts/<Identifier>.png         Sprite per species. Filename must match `name` in JSON.
@@ -105,7 +106,13 @@ There is no battle screen. Wildlore fights happen in the world, on Terraria's ow
   finish off the rare you came for.
 - Each strike is a lunge: damage is set on the projectile for the lunge window only, so a
   companion drifting into something never hurts it.
-- Wild creatures are passive until struck, then hit back for `BeastNPC.AggroMemory` ticks.
+- Wild creatures wander on their own — `BeastNPC` runs its own AI at `aiStyle = 0` rather
+  than borrowing a vanilla one, which is why gravity is applied by hand. The behaviour a
+  species uses comes from `movement` in the JSON.
+- They are passive until struck, then hit back for `BeastNPC.AggroMemory` ticks and flee
+  once below half health.
+- Name and level float over any creature within `BeastNPC.LabelRange`, and over the
+  companion. Until the party UI exists this is the only place levels are visible.
 - Damage is `attack * 2 - defence` with a floor, times the element multiplier. Defence
   lengthens a fight rather than ending it, which matters when the point is to weaken
   something enough to catch it.
@@ -128,6 +135,8 @@ note under "Not yet built".
 | Level cap | `Wildlore.MaxLevel` |
 | Rare variant odds | `Wildlore.RareChance` (1-in-N) |
 | Party size | `WildlorePlayer.PartySize` |
+| How a species moves | `movement` in the JSON (0 walk, 1 hop, 2 fly, 3 drift, 4 swim) |
+| Wander pace | `BeastNPC.WanderSpeed`, derived from the Speed stat |
 | Companion aggro range | `BeastPet.AggroRange` |
 | Attack rate | `BeastPet.BeginLunge`, derived from the Speed stat |
 | When a companion spares a target | `BeastPet.SpareThreshold` |
