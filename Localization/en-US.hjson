@@ -1,0 +1,42 @@
+Mods: {
+	Wildlore: {
+		Beasts: {
+			Emberkit: {
+				DisplayName: Emberkit
+				Lore: A small scavenger that nests in warm ash. Its tail smoulders faintly at dusk.
+			}
+			Cinderfox: {
+				DisplayName: Cinderfox
+				Lore: Fast, wary, and rarely seen twice in the same place. Hunts alone.
+			}
+			Tidepup: {
+				DisplayName: Tidepup
+				Lore: Washes ashore after storms. Surprisingly heavy for its size.
+			}
+			Brinehound: {
+				DisplayName: Brinehound
+				Lore: Its hide hardens with every season spent in salt water.
+			}
+			Mossling: {
+				DisplayName: Mossling
+				Lore: Sleeps buried in leaf litter. The moss on its back is alive.
+			}
+			Thornbeast: {
+				DisplayName: Thornbeast
+				Lore: Grows a new ring of thorns each year. Older ones are unmistakable.
+			}
+		}
+
+		Items: {
+			BasicSnareOrbItem: {
+				DisplayName: Snare Orb
+				Tooltip: Throw at a wild creature to catch it
+			}
+		}
+
+		Projectiles: {
+			BasicSnareOrb.DisplayName: Snare Orb
+			BeastPet.DisplayName: Companion
+		}
+	}
+}

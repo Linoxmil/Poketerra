@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="..\tModLoader.targets" />
+    <PropertyGroup>
+        <AssemblyName>Wildlore</AssemblyName>
+        <LangVersion>latest</LangVersion>
+        <OutputType>Exe</OutputType>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="Microsoft.Xna.Framework" />
+        <Using Include="Microsoft.Xna.Framework.Graphics" />
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.IO" />
+        <Using Include="System.Linq" />
+        <Using Include="Wildlore.Core" />
+        <Using Include="Terraria" />
+        <Using Include="Terraria.ID" />
+        <Using Include="Terraria.ModLoader" />
+    </ItemGroup>
+</Project>

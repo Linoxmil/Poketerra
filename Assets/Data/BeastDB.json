@@ -1,0 +1,67 @@
+{
+  "beasts": {
+    "1": {
+      "name": "Emberkit",
+      "elements": [1],
+      "catchRate": 190,
+      "baseExp": 62,
+      "growthRate": 1,
+      "biome": 0,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 39, "attack": 52, "defense": 43, "speed": 65 },
+      "evolution": { "id": 2, "atLevel": 16 }
+    },
+    "2": {
+      "name": "Cinderfox",
+      "elements": [1],
+      "catchRate": 45,
+      "baseExp": 142,
+      "growthRate": 1,
+      "biome": 1,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 58, "attack": 64, "defense": 58, "speed": 80 }
+    },
+    "3": {
+      "name": "Tidepup",
+      "elements": [2],
+      "catchRate": 190,
+      "baseExp": 63,
+      "growthRate": 1,
+      "biome": 4,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 44, "attack": 48, "defense": 65, "speed": 43 },
+      "evolution": { "id": 4, "atLevel": 16 }
+    },
+    "4": {
+      "name": "Brinehound",
+      "elements": [2],
+      "catchRate": 45,
+      "baseExp": 142,
+      "growthRate": 1,
+      "biome": 4,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 59, "attack": 63, "defense": 80, "speed": 58 }
+    },
+    "5": {
+      "name": "Mossling",
+      "elements": [3],
+      "catchRate": 190,
+      "baseExp": 64,
+      "growthRate": 1,
+      "biome": 3,
+      "spawnWeight": 1.0,
+      "stats": { "hp": 45, "attack": 49, "defense": 49, "speed": 45 },
+      "evolution": { "id": 6, "atLevel": 16 }
+    },
+    "6": {
+      "name": "Thornbeast",
+      "elements": [3, 7],
+      "catchRate": 45,
+      "baseExp": 142,
+      "growthRate": 1,
+      "biome": 3,
+      "spawnWeight": 0.3,
+      "stats": { "hp": 60, "attack": 62, "defense": 63, "speed": 60 }
+    }
+  }
+}

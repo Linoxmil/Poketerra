@@ -1,0 +1,4 @@
+displayName = Wildlore
+author = Livio Migliore
+version = 0.1.0
+buildIgnore = .gitignore, .gitattributes, .sln, .csproj, *.user, obj*, bin*, .vs*, .git*, CLAUDE.md, README.md, .github*
