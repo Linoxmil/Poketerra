@@ -118,9 +118,18 @@ Mods: {
 					Hold one to send your companion in — a worn-down creature is far easier to snare
 					'''
 			}
+			GreaterSnareOrbItem: {
+				DisplayName: Greater Snare Orb
+				Tooltip:
+					'''
+					A brass-bound orb that holds far better than the plain one
+					Roughly twice the chance of a Snare Orb
+					'''
+			}
 		}
 
 		Projectiles: {
+			GreaterSnareOrb.DisplayName: Greater Snare Orb
 			BasicSnareOrb.DisplayName: Snare Orb
 			BeastPet.DisplayName: Companion
 		}

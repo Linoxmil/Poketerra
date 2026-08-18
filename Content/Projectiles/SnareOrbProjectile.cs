@@ -240,3 +240,14 @@ public class BasicSnareOrb : SnareOrbProjectile
     protected override int OrbItemType => ModContent.ItemType<Items.BasicSnareOrbItem>();
     public override string Texture => "Wildlore/Assets/Items/BasicSnareOrb";
 }
+
+/// <summary>
+///     The second tier. Nothing here but a better multiplier and a different sprite — that is
+///     the whole point of the base class, and it is all a new orb should ever need.
+/// </summary>
+public class GreaterSnareOrb : SnareOrbProjectile
+{
+    protected override float CatchModifier => 1.8f;
+    protected override int OrbItemType => ModContent.ItemType<Items.GreaterSnareOrbItem>();
+    public override string Texture => "Wildlore/Assets/Items/GreaterSnareOrb";
+}

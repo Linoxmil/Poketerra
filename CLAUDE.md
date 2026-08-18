@@ -41,6 +41,8 @@ Content/
   Projectiles/SnareOrbProjectile.cs  Catching mechanic. Subclass for stronger orbs.
   Projectiles/BeastPet.cs         The summoned companion that follows the player.
   Items/BasicSnareOrbItem.cs      Throwable orb item + recipes.
+  Items/GreaterSnareOrbItem.cs    Second-tier orb. Only differs by CatchModifier.
+  UI/PartyHUD.cs                  Party list down the left edge. Draw-only interface layer.
 ID/
   BeastID.cs                      Species ID constants. Append only.
   Enums.cs                        ElementType, GrowthGroup, SpawnBiome, MovementStyle,
@@ -151,7 +153,7 @@ Two things then scale it:
 | World-size scaling | `BeastSpawnSystem.WorldPopulation` |
 | Split within a biome | `spawnWeight` in the JSON |
 | Catch difficulty (per species) | `catchRate` in the JSON, 1–255, higher = easier |
-| Catch difficulty (per orb) | `CatchModifier` in the orb subclass |
+| Catch difficulty (per orb) | `CatchModifier` in the orb subclass (1.0 basic, 1.8 greater) |
 | Level cap | `Wildlore.MaxLevel` |
 | Rare variant odds | `Wildlore.RareChance` (1-in-N) |
 | Party size | `WildlorePlayer.PartySize` |
@@ -167,9 +169,9 @@ Two things then scale it:
 
 ## Not yet built
 
-- UI: party sidebar, discovery log screen, creature summary panel. Until those exist the
-  only way to get a companion out is the `CycleCompanion` keybind (default `N`), which
-  steps through the occupied party slots and then recalls.
+- UI: the party list exists (`Content/UI/PartyHUD.cs`) but is draw-only — no clicking, no
+  reordering. The discovery log screen and a creature summary panel are still missing, and
+  the only way to send a companion out is the `CycleCompanion` keybind (default `N`).
 - Rare variant sprites (`<Identifier>_R.png`) — rare creatures are currently only tinted,
   scaled up slightly, and given a glow
 - Multiplayer packet sync for party changes. Save/load works, live sync does not, which is
